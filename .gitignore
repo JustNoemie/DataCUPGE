@@ -124,6 +124,7 @@ dist
 
 credentials.json
 token.json
+data.json
 
 # yarn v2
 .yarn/cache
