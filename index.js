@@ -72,49 +72,56 @@ async function authorize() {
 async function getData(auth) {
   const sheets = google.sheets({version: 'v4', auth});
   const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: '157tezCYwqEVU79vsFQyc9zi1yqymA1jSFSStA1rb1-M',
-    range: 'Feuille 1!1:15',
+    spreadsheetId: '157tezCYwqEVU79vsFQyc9zi1yqymA1jSFSStA1rb1-M', //Unique id of the spreadsheet
+    range: 'Feuille 1!1:15', //Range of data we assk to sheet api
   });
-  const rows = res.data.values;
+  const rows = res.data.values; //get the result of the request
   
-  if (!rows || rows.length === 0) {
-    console.log('No data found.');
+  if (!rows || rows.length === 0) { //DEPRECATED (will cause error)
+    console.log('No data found.'); 
     return;
   }
-  return rows;
+
+  return rows; //Return raw data
 }
+
+/**
+ * Create an object that store every schools properties
+ * @param {object} data 
+ * @returns 
+ */
 async function OrganiseData(data){
     var categories = data[0] //Get the name of every line
     var organisedData = {};
     data.forEach((line, LineIndex) => {
-      if(LineIndex < 2){return} //Skip line for name and description `${schoolName}.${categories[CellIndex]}`
-      const schoolName = line[0];
+      if(LineIndex < 2){return} //Skip line for name and description
+      const schoolName = line[0]; //Get the name of the school in the current line
       var schoolData = {};
       line.forEach((cell, CellIndex) => {
-        if([0,2,3,8,14,21,24].includes(CellIndex)) {return}
-        schoolData[categories[CellIndex]] = cell;
-        
-        
+        if([0,2,3,8,14,21,24].includes(CellIndex)) {return} //Exclude title columns
+
+        schoolData[categories[CellIndex]] = cell; //Store the property
+      
       });
-      organisedData[schoolName] = schoolData;
+      organisedData[schoolName] = schoolData; //Store the school and its properties
     });
     return organisedData
 }
 
 /**
- * 
+ * Create a json (don't check if there is already one) name "data.json" in the current folder
  * @param {google.auth.OAuth2} auth Authenticated Google OAuth client
  */
 async function createJSON(auth){
-    const rows = await getData(auth);
-    const OrganisedData = await (OrganiseData(rows));
+    const rows = await getData(auth); 
+    const OrganisedData = await (OrganiseData(rows)); //Don't touch to the await (will not cause error but return {})
     const jsonData = JSON.stringify(OrganisedData, null, 2);
     
     fs.writeFile('data.json', jsonData, (err) => {
       if (err) {
-          console.error('Erreur lors de la sauvegarde du fichier JSON :', err);
+        console.error('Erreur lors de la sauvegarde du fichier JSON :', err);
       } else {
-          console.log('Fichier JSON sauvegardé avec succès !');
+        console.log('Fichier JSON sauvegardé avec succès !');
       }
   });
 }
