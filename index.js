@@ -3,6 +3,7 @@ const path = require('path');
 const process = require('process');
 const {authenticate} = require('@google-cloud/local-auth');
 const {google} = require('googleapis');
+const jsonType = require('./type.json');
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
@@ -73,7 +74,7 @@ async function getData(auth) {
   const sheets = google.sheets({version: 'v4', auth});
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: '157tezCYwqEVU79vsFQyc9zi1yqymA1jSFSStA1rb1-M', //Unique id of the spreadsheet
-    range: 'Feuille 1!1:15', //Range of data we assk to sheet api
+    range: 'Proposition critères!A1:Y3', //Range of data asked to sheet api
   });
   const rows = res.data.values; //get the result of the request
   
@@ -86,11 +87,36 @@ async function getData(auth) {
 }
 
 /**
+ * Figures out the correct type for the current cell from a custom json (case-sensitive,
+ * spelling-sensitive) and return the cell content in that type 
+ * If the type in the file is incorrect it will not create an error
+ * @param {*} index 
+ * @param {*} data 
+ * @returns 
+ */
+function handleType(index, data){
+  const type = jsonType["type"];
+  switch(type[index]){
+    case "Chaine":
+      return data;
+    case "Nombre":
+      return parseInt(data);
+    case "Boolean":
+      return (data === "TRUE")
+    case "Liste":
+      return data.split(", ")
+
+  }
+
+}
+
+
+/**
  * Create an object that store every schools properties
  * @param {object} data 
  * @returns 
  */
-async function OrganiseData(data){
+function OrganiseData(data){
     var categories = data[0] //Get the name of every line
     var organisedData = {};
     data.forEach((line, LineIndex) => {
@@ -98,10 +124,10 @@ async function OrganiseData(data){
       const schoolName = line[0]; //Get the name of the school in the current line
       var schoolData = {};
       line.forEach((cell, CellIndex) => {
-        if([0,2,3,8,14,21,24].includes(CellIndex)) {return} //Exclude title columns
+        if([0,2,3,9,18].includes(CellIndex)) {return} //Exclude title columns
 
-        schoolData[categories[CellIndex]] = cell; //Store the property
-      
+        schoolData[categories[CellIndex]] = handleType(CellIndex, cell); //Store the property with the appropriate type
+
       });
       organisedData[schoolName] = schoolData; //Store the school and its properties
     });
@@ -114,7 +140,8 @@ async function OrganiseData(data){
  */
 async function createJSON(auth){
     const rows = await getData(auth); 
-    const OrganisedData = await (OrganiseData(rows)); //Don't touch to the await (will not cause error but return {})
+    
+    const OrganisedData = (OrganiseData(rows)); 
     const jsonData = JSON.stringify(OrganisedData, null, 2);
     
     fs.writeFile('data.json', jsonData, (err) => {
@@ -123,7 +150,7 @@ async function createJSON(auth){
       } else {
         console.log('Fichier JSON sauvegardé avec succès !');
       }
-  });
+    });
 }
 
 authorize().then(createJSON).catch(console.error);
