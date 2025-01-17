@@ -10,8 +10,8 @@
       "Chaine",
       "Nombre",
       "Null",
-      "?",
-      "?",
+      "Liste",
+      "Liste",
       "Liste",
       "Nombre",
       "Nombre",
@@ -24,7 +24,18 @@
       "Nombre",
       "Liste",
       "Boolean",
-      "Boolean"
+      "Boolean",
+      "Null",
+      "Nombre",
+      "Boolean",
+      "Chaine",
+      "Chaine",
+      "Null",
+      "Boolean",
+      "Nombre",
+      "Nombre",
+      "Nombre",
+      "Liste"
     ]
 }
   

@@ -74,7 +74,7 @@ async function getData(auth) {
   const sheets = google.sheets({version: 'v4', auth});
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: '157tezCYwqEVU79vsFQyc9zi1yqymA1jSFSStA1rb1-M', //Unique id of the spreadsheet
-    range: 'Proposition critères!A1:Y3', //Range of data asked to sheet api
+    range: 'Proposition critères!A1:AL3', //Range of data asked to sheet api
   });
   const rows = res.data.values; //get the result of the request
   
@@ -107,6 +107,7 @@ function handleType(index, data){
       return data.split(", ")
 
   }
+  
 
 }
 
@@ -124,8 +125,7 @@ function OrganiseData(data){
       const schoolName = line[0]; //Get the name of the school in the current line
       var schoolData = {};
       line.forEach((cell, CellIndex) => {
-        if([0,2,3,9,18].includes(CellIndex)) {return} //Exclude title columns
-
+        if([0,2,3,9,18,25,30].includes(CellIndex)) {return} //Exclude title columns
         schoolData[categories[CellIndex]] = handleType(CellIndex, cell); //Store the property with the appropriate type
 
       });
