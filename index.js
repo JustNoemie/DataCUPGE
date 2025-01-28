@@ -94,21 +94,20 @@ async function getData(auth) {
  * @param {*} data 
  * @returns 
  */
-function handleType(index, data){
+function handleType(index, data, typ){
   const type = jsonType["type"];
-  switch(type[index]){
-    case "Chaine":
+  switch(typ[index]){
+    case "text":
       return data;
-    case "Nombre":
+    case "number":
       return parseInt(data);
-    case "Boolean":
+    case "boolean":
       return (data === "TRUE")
-    case "Liste":
+    case "list":
       return data.split(", ")
 
   }
   
-
 }
 
 
@@ -118,18 +117,25 @@ function handleType(index, data){
  * @returns 
  */
 function OrganiseData(data){
-    var categories = data[0] //Get the name of every line
-    var organisedData = {};
+    var categories = data[1] //Get the name of every line
+    const typ = data[2];
+    var organisedData = [];
     data.forEach((line, LineIndex) => {
-      if(LineIndex < 2){return} //Skip line for name and description
+      if(LineIndex < 4){return} //Skip line for name and description
       const schoolName = line[0]; //Get the name of the school in the current line
       var schoolData = {};
       line.forEach((cell, CellIndex) => {
-        if([0,5,6,13,18,25,29].includes(CellIndex)) {return} //Exclude title columns
-        schoolData[categories[CellIndex]] = handleType(CellIndex, cell); //Store the property with the appropriate type
+        if([5,6,13,18,25,29].includes(CellIndex)) {return} //Exclude title columns
+        if(CellIndex == 0){
+          schoolData['slug'] = cell.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll(" ", "-");
+          cell.normalize("NFD").replace()
+          schoolData['name'] = cell;
+
+        }
+        schoolData[categories[CellIndex]] = handleType(CellIndex, cell, typ); //Store the property with the appropriate type
 
       });
-      organisedData[schoolName] = schoolData; //Store the school and its properties
+      organisedData.push(schoolData) //Store the school and its properties
     });
     return organisedData
 }
