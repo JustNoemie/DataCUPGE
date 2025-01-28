@@ -86,6 +86,37 @@ async function getData(auth) {
   return rows; //Return raw data
 }
 
+function handleList(data){
+  if(data.includes('"')){
+    var finalList = [];
+    var current = "";
+    var isActive = false;
+    console.log(data);
+    //console.log(data.length);
+    var i = 0;
+    for (let char of data){
+      if (char == '"'){
+        isActive = !isActive;
+      }else if (char == ',' && !isActive){
+        finalList.push(current);
+        current = "";
+      }else {
+        if (current != "" || char != " "){
+          current += char
+        }
+      }
+      //console.log(i);
+      if((data.length - 1) == i){
+        finalList.push(current);
+      }
+      i += 1;
+    }
+    return finalList
+  }else {
+    return data.split(", ")
+  }
+}
+
 /**
  * Figures out the correct type for the current cell from a custom json (case-sensitive,
  * spelling-sensitive) and return the cell content in that type 
@@ -104,7 +135,7 @@ function handleType(index, data, typ){
     case "boolean":
       return (data === "TRUE")
     case "list":
-      return data.split(", ")
+      return handleList(data);
 
   }
   
@@ -125,13 +156,13 @@ function OrganiseData(data){
       const schoolName = line[0]; //Get the name of the school in the current line
       var schoolData = {};
       line.forEach((cell, CellIndex) => {
-        if([5,6,13,18,25,29].includes(CellIndex)) {return} //Exclude title columns
+        if([5,6,14,20,26,30].includes(CellIndex)) {return} //Exclude title columns
         if(CellIndex == 0){
           schoolData['slug'] = cell.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll(" ", "-");
           cell.normalize("NFD").replace()
           schoolData['name'] = cell;
-
         }
+        //if(CellIndex == 8){ console.log(cell)};
         schoolData[categories[CellIndex]] = handleType(CellIndex, cell, typ); //Store the property with the appropriate type
 
       });
