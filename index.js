@@ -72,11 +72,16 @@ async function authorize() {
  */
 async function getData(auth) {
   const sheets = google.sheets({version: 'v4', auth});
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: '157tezCYwqEVU79vsFQyc9zi1yqymA1jSFSStA1rb1-M', //Unique id of the spreadsheet
-    range: "Données écoles d'ingénieurs!1:100", //Range of data asked to sheet api
-  });
-  const rows = res.data.values; //get the result of the request
+  const res = await sheets.spreadsheets.values.batchGet({
+    spreadsheetId: '157tezCYwqEVU79vsFQyc9zi1yqymA1jSFSStA1rb1-M',
+    ranges: ["Données écoles d'ingénieurs", "Données Universités!1:49"],
+  })
+  //const res = await sheets.spreadsheets.values.get({
+  //  spreadsheetId: '157tezCYwqEVU79vsFQyc9zi1yqymA1jSFSStA1rb1-M', //Unique id of the spreadsheet
+  //  range: "Données écoles d'ingénieurs!1:100", //Range of data asked to sheet api
+  //});
+  const rows = res.data.valueRanges[1].values; //get the result of the request
+  console.log(rows);
   
   if (!rows || rows.length === 0) { //DEPRECATED (will cause error)
     console.log('No data found.'); 
@@ -91,7 +96,7 @@ function handleList(data){
     var finalList = [];
     var current = "";
     var isActive = false;
-    console.log(data);
+    //console.log(data);
     //console.log(data.length);
     var i = 0;
     for (let char of data){
@@ -136,6 +141,8 @@ function handleType(index, data, typ){
       return (data === "TRUE")
     case "list":
       return handleList(data);
+    case "protectedList":
+      return data.split(";");
 
   }
   
@@ -156,7 +163,7 @@ function OrganiseData(data){
       const schoolName = line[0]; //Get the name of the school in the current line
       var schoolData = {};
       line.forEach((cell, CellIndex) => {
-        if([5,6,14,20,26,30].includes(CellIndex)) {return} //Exclude title columns
+        if(typ[CellIndex] == "null") {return} //Exclude title columns
         if(CellIndex == 0){
           schoolData['slug'] = cell.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll(" ", "-");
           cell.normalize("NFD").replace()
