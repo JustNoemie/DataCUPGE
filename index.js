@@ -74,7 +74,7 @@ async function getData(auth) {
   const sheets = google.sheets({version: 'v4', auth});
   const res = await sheets.spreadsheets.values.batchGet({
     spreadsheetId: '157tezCYwqEVU79vsFQyc9zi1yqymA1jSFSStA1rb1-M',
-    ranges: ["Données écoles d'ingénieurs", "Données Universités!1:49"],
+    ranges: ["Données écoles d'ingénieurs!1:174", "Données Universités!1:49"],
   })
   //const res = await sheets.spreadsheets.values.get({
   //  spreadsheetId: '157tezCYwqEVU79vsFQyc9zi1yqymA1jSFSStA1rb1-M', //Unique id of the spreadsheet
