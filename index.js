@@ -80,8 +80,8 @@ async function getData(auth) {
   //  spreadsheetId: '157tezCYwqEVU79vsFQyc9zi1yqymA1jSFSStA1rb1-M', //Unique id of the spreadsheet
   //  range: "Données écoles d'ingénieurs!1:100", //Range of data asked to sheet api
   //});
-  const rows = res.data.valueRanges[1].values; //get the result of the request
-  console.log(rows);
+  const rows = res.data.valueRanges[0].values; //get the result of the request
+  
   
   if (!rows || rows.length === 0) { //DEPRECATED (will cause error)
     console.log('No data found.'); 
