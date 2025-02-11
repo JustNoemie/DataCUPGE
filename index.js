@@ -134,14 +134,19 @@ function handleType(index, data, typ){
   const type = jsonType["type"];
   switch(typ[index]){
     case "text":
+      
       return data;
     case "number":
+      if (data == "0") return null;
       return parseInt(data);
     case "boolean":
+      
       return (data === "TRUE")
     case "list":
+      if (data == "0") return null;
       return handleList(data);
     case "protectedList":
+      
       return data.split(";");
 
   }
@@ -165,7 +170,7 @@ function OrganiseData(data){
       line.forEach((cell, CellIndex) => {
         if(typ[CellIndex] == "null") {return} //Exclude title columns
         if(CellIndex == 0){
-          schoolData['slug'] = cell.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll(" ", "-");
+          schoolData['slug'] = cell.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll(" ", "-").toLowerCase().replaceAll("’", "-");
           cell.normalize("NFD").replace()
           schoolData['name'] = cell;
         }
